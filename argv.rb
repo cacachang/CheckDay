@@ -1,7 +1,9 @@
 require "optparse"
 require 'optparse/date'
+require './date_transform.rb'
 
 class Parser 
+  include DateTransform
   attr_reader :input
 
   def initialize(input:)
@@ -9,7 +11,6 @@ class Parser
   end
 
   def parse
-    @output = {}
     options = OptionParser.new do |option|    
       option.banner = "Usage: example.rb [options]"
     
@@ -18,24 +19,18 @@ class Parser
         exit
       end
 
-      option.on("-v", "--[no-]verbose", "Run verbosely") do |v|
-        @output[:v] = v
-      end
-    
-      option.on("-c", "--color", "Enable syntax highlighting") do |c|
-        @output[:c] = c
-      end
-
-      option.on("-t", "--time [Time]", DateTime, "Begin execution at given time") do |t|
+      option.on("-t", "--time format: 'YYYY/MM/DD'", Date, "Begin execution at given time") do |t|
         puts DateTime.parse(t.to_s).strftime("%A")
       end
-    
-      option.on("-name", "--name", "Require your name") do |name|
-        @output[:name] = name
+
+      option.on("-m", "--time format: 'YYYY/MM/DD'", Date, "Transform data format to minguo date") do |t|
+        puts Minguo.new(date: t).parse
+      end
+
+      option.on("-c", "--time format: 'YY/MM/DD'", String, "Transform data format to common era date") do |t|
+        puts CommonEra.new(date: t).parse
       end
     end.parse!
-
-    puts @output
   end
 end
 
